@@ -76,7 +76,7 @@ const StatsSection: React.FC = () => {
   }, [allData, range]);
 
   const cumulativeStats = useMemo(() => {
-    const dataArray = Object.values(allData);
+    const dataArray = Object.values(allData) as DailyData[];
     if (!dataArray.length) return { totalReading: 0, totalBible: 0 };
 
     const totalReading = dataArray.reduce((acc, d) => 

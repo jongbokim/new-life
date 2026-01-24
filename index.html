@@ -3,7 +3,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>뉴 라이프 - New Life</title>
     
     <!-- SEO 및 공유 최적화 -->
@@ -20,11 +20,9 @@
             
             if (isKakao) {
                 if (ua.indexOf('android') > -1) {
-                    // 안드로이드: 크롬 또는 시스템 브라우저로 강제 전환 시도
                     var targetUrl = location.href.replace(/https?:\/\//, '');
                     location.href = 'intent://' + targetUrl + '#Intent;scheme=https;package=com.android.chrome;end';
                 } else {
-                    // iOS: 강제 전환이 불가능하므로 가이드 모달 표시를 위해 DOMContentLoaded 대기
                     window.addEventListener('DOMContentLoaded', function() {
                         var guide = document.createElement('div');
                         guide.id = 'kakao-guide-overlay';
@@ -64,6 +62,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Import Maps Polyfill for older mobile browsers -->
+    <script async src="https://ga.jspm.io/npm:es-module-shims@1.10.0/dist/es-module-shims.js"></script>
+
     <style>
         body {
             font-family: 'Pretendard', sans-serif;
@@ -71,6 +72,10 @@
             -webkit-tap-highlight-color: transparent;
             overflow-x: hidden;
         }
+        /* Safe Area Utilities for Mobile */
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        .pt-safe { padding-top: env(safe-area-inset-top); }
+
         /* 초기 로딩 스피너 디자인 */
         #initial-loader {
             position: fixed;
@@ -98,31 +103,47 @@
             font-weight: 600;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Error Overlay Style */
+        #error-overlay {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 10000;
+            padding: 24px;
+            color: #ef4444;
+            font-family: monospace;
+            overflow: auto;
+            white-space: pre-wrap;
+            display: none;
+        }
     </style>
 
     <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@19.0.0",
-    "react-dom": "https://esm.sh/react-dom@19.0.0",
-    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "lucide-react": "https://esm.sh/lucide-react@0.460.0",
-    "recharts": "https://esm.sh/recharts@2.13.3?external=react,react-dom",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/"
+    "react": "https://esm.sh/react@18.3.1",
+    "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime",
+    "react-dom": "https://esm.sh/react-dom@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+    "lucide-react": "https://esm.sh/lucide-react@0.460.0?deps=react@18.3.1",
+    "recharts": "https://esm.sh/recharts@2.13.3?deps=react@18.3.1,react-dom@18.3.1",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
   }
 }
 </script>
     
     <!-- 핵심 모듈 프리로드 -->
-    <link rel="modulepreload" href="https://esm.sh/react@19.0.0">
-    <link rel="modulepreload" href="https://esm.sh/react-dom@19.0.0">
+    <link rel="modulepreload" href="https://esm.sh/react@18.3.1">
+    <link rel="modulepreload" href="https://esm.sh/react-dom@18.3.1">
 </head>
 <body>
     <div id="initial-loader">
         <div class="spinner"></div>
         <div class="loading-text">뉴 라이프를 불러오는 중...</div>
     </div>
+    <div id="error-overlay"></div>
     <div id="root"></div>
     <script>
         // 로더 제거 함수
@@ -136,16 +157,29 @@
             }
         }
 
+        // 글로벌 에러 핸들러 (모바일 디버깅용)
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            const errorOverlay = document.getElementById('error-overlay');
+            if (errorOverlay) {
+                errorOverlay.style.display = 'block';
+                errorOverlay.innerHTML += `
+                    <div style="margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                        <h3 style="font-weight:bold; margin-bottom:5px;">⚠️ Application Error</h3>
+                        <p>${msg}</p>
+                        <p style="font-size:12px; color:#666; margin-top:5px;">${url}:${lineNo}</p>
+                    </div>
+                `;
+            }
+            // 에러 발생 시 로더를 숨겨야 에러 메세지가 보임
+            hideInitialLoader();
+            return false;
+        };
+
         // 1. 페이지 로드 완료 시
         window.addEventListener('load', hideInitialLoader);
         
         // 2. 만약 로드 이벤트가 지연될 경우를 대비한 4.5초 세이프가드
         setTimeout(hideInitialLoader, 4500);
-
-        // 3. 에러 발생 시에도 로더를 제거하여 빈 화면이라도 보이게 함
-        window.onerror = function() {
-            hideInitialLoader();
-        };
     </script>
 </body>
 </html>
