@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import { UserProfile, Region, Gender } from '../types';
-import { User, MapPin, Hash, Briefcase, Phone, Save, LogOut, Download, Upload, FileJson, AlertCircle } from 'lucide-react';
+import { User, MapPin, Hash, Briefcase, Phone, Save, LogOut, Download, Upload, FileJson, AlertCircle, Lock } from 'lucide-react';
 
 interface UserProfileViewProps {
   profile: UserProfile;
@@ -169,15 +169,6 @@ const UserProfileView: React.FC<UserProfileViewProps> = ({ profile, onUpdate, on
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <InputField 
           icon={User} 
-          label="아이디" 
-          field="userId" 
-          disabled={true} 
-          value={formData.userId}
-          isEditing={isEditing}
-          onChange={(val) => handleChange('userId', val)}
-        />
-        <InputField 
-          icon={User} 
           label="성명" 
           field="name" 
           disabled={false} 
@@ -300,12 +291,45 @@ const UserProfileView: React.FC<UserProfileViewProps> = ({ profile, onUpdate, on
         </div>
       </div>
 
+      {/* 앱 설치 안내 섹션 */}
+      <div className="pt-6">
+        <h3 className="font-bold text-slate-800 text-lg mb-4 px-2">앱 설치 안내</h3>
+        <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
+          <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
+            <div className="bg-white p-2 rounded-lg shadow-sm">
+              <Download size={20} className="text-emerald-600" />
+            </div>
+            <div className="text-xs text-slate-600 space-y-1">
+              <p className="font-bold text-slate-800">홈 화면에 추가하여 앱처럼 사용하세요</p>
+              <p>인터넷 연결 없이도 일부 기능을 사용할 수 있으며, 더 넓은 화면으로 이용할 수 있습니다.</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-500">
+            <div className="bg-slate-50 p-4 rounded-xl">
+              <strong className="block text-slate-700 mb-2">🤖 Android (Chrome)</strong>
+              <ol className="list-decimal list-inside space-y-1">
+                <li>화면 우측 상단 <strong>더보기(⋮)</strong> 메뉴 터치</li>
+                <li><strong>'앱 설치'</strong> 또는 <strong>'홈 화면에 추가'</strong> 선택</li>
+              </ol>
+            </div>
+            <div className="bg-slate-50 p-4 rounded-xl">
+              <strong className="block text-slate-700 mb-2">🍎 iOS (Safari)</strong>
+              <ol className="list-decimal list-inside space-y-1">
+                <li>화면 하단 <strong>공유</strong> 버튼 터치</li>
+                <li><strong>'홈 화면에 추가'</strong> 선택</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="pt-4">
         <button 
           onClick={onLogout}
-          className="w-full py-4 bg-slate-100 text-slate-500 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-red-50 hover:text-red-500 transition-colors"
+          className="w-full py-4 bg-slate-100 text-slate-500 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-200 hover:text-slate-700 transition-colors"
         >
-          <LogOut size={18} /> 로그아웃
+          <Lock size={18} /> 화면 잠금
         </button>
       </div>
     </div>

@@ -1,20 +1,52 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 뉴 라이프 (New Life)
 
-# Run and deploy your AI Studio app
+평신도 신앙생활 가이드 웹 애플리케이션입니다.
 
-This contains everything you need to run your app locally.
+## 🚀 실행 방법 (PC)
 
-View your app in AI Studio: https://ai.studio/apps/drive/1GTZMuwzpSoLg0T03BG4iGELwShirysnM
+이 프로젝트를 PC에서 실행하려면 **Node.js**가 설치되어 있어야 합니다.
 
-## Run Locally
+### 1. Node.js 설치
+[Node.js 공식 웹사이트](https://nodejs.org/)에서 최신 버전(LTS 권장)을 다운로드하여 설치하세요.
 
-**Prerequisites:**  Node.js
+### 2. 의존성 설치
+다운로드 받은 프로젝트 폴더(압축 푼 폴더)에서 터미널(명령 프롬프트 또는 PowerShell)을 열고 다음 명령어를 입력하세요:
 
+```bash
+npm install
+```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+이 명령어는 프로젝트 실행에 필요한 라이브러리들을 자동으로 다운로드합니다.
+
+### 3. 개발 서버 실행
+설치가 완료되면 다음 명령어로 앱을 실행하세요:
+
+```bash
+npm run dev
+```
+
+### 4. 브라우저 접속
+터미널에 표시된 주소(예: `http://localhost:5173` 또는 `http://localhost:3000`)를 브라우저 주소창에 입력하여 접속하세요.
+
+---
+
+## 📱 PWA (앱 설치) 테스트
+개발 모드(`npm run dev`)에서도 PWA 기능을 테스트할 수 있지만, 더 정확한 테스트를 위해서는 빌드 후 미리보기 모드를 사용하는 것이 좋습니다.
+
+```bash
+npm run build
+npm run preview
+```
+
+## 🛠️ 주요 기능
+- **매일 체크리스트**: 기도, 말씀, 생활 습관 체크
+- **영성 일기**: 오늘 하루의 묵상 기록
+- **성경 통독**: 성경 읽기 진도표 관리
+- **통계**: 주간/월간 신앙 생활 통계 확인
+- **잠금 기능**: 개인 정보 보호를 위한 비밀번호 잠금
+
+## 📂 프로젝트 구조
+- `src/`: 소스 코드
+  - `components/`: UI 컴포넌트
+  - `services/`: 데이터 저장 로직 (LocalStorage)
+- `public/`: 정적 파일 (아이콘, manifest.json)

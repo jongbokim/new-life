@@ -1,14 +1,12 @@
-
 import React, { useState } from 'react';
 import { UserProfile, Gender, Region } from '../types';
-import { ArrowLeft, Check, MapPin, User, Hash, Briefcase, Phone, Lock, Eye, EyeOff } from 'lucide-react';
+import { Check, MapPin, User, Hash, Briefcase, Phone, Lock, Eye, EyeOff } from 'lucide-react';
 
-interface SignupProps {
+interface InitialSetupProps {
   onComplete: (profile: UserProfile) => void;
-  onBack: () => void;
 }
 
-// InputField를 외부로 분리하여 불필요한 리렌더링 및 포커스 분실 방지
+// InputField Component
 interface InputFieldProps {
   icon: React.ElementType;
   label: string;
@@ -35,7 +33,7 @@ const InputField: React.FC<InputFieldProps> = ({ icon: Icon, label, type = "text
   </div>
 );
 
-const Signup: React.FC<SignupProps> = ({ onComplete, onBack }) => {
+const InitialSetup: React.FC<InitialSetupProps> = ({ onComplete }) => {
   const [formData, setFormData] = useState<Partial<UserProfile>>({
     gender: 'male',
     region: '서울'
@@ -50,15 +48,15 @@ const Signup: React.FC<SignupProps> = ({ onComplete, onBack }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // 유효성 검사
-    if (!formData.userId || !formData.password || !formData.name) {
+    // Validation
+    if (!formData.password || !formData.name) {
       alert('필수 정보를 입력해주세요.');
       return;
     }
 
     const newProfile: UserProfile = {
       id: Math.random().toString(36).substr(2, 9),
-      userId: formData.userId!,
+      userId: 'user', // Default ID for single user mode
       password: formData.password!,
       name: formData.name!,
       age: formData.age || '',
@@ -74,25 +72,21 @@ const Signup: React.FC<SignupProps> = ({ onComplete, onBack }) => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <div className="sticky top-0 bg-white z-10 px-6 py-4 border-b border-slate-50 flex items-center gap-4">
-        <button onClick={onBack} className="p-2 -ml-2 hover:bg-slate-50 rounded-full transition-colors">
-          <ArrowLeft className="text-slate-800" />
-        </button>
-        <h2 className="text-lg font-bold text-slate-800">회원가입</h2>
+        <h2 className="text-lg font-bold text-slate-800">프로필 설정</h2>
       </div>
 
       <div className="flex-1 p-6 pb-10 max-w-lg mx-auto w-full">
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-black text-emerald-600 mb-2">환영합니다!</h1>
+          <p className="text-slate-500 text-sm">
+            앱 사용을 위한 기본 정보를 입력해주세요.
+          </p>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* 계정 정보 섹션 */}
+          {/* Security Section */}
           <section className="space-y-4">
-            <h3 className="text-sm font-bold text-emerald-600 mb-2">계정 정보</h3>
-            <InputField 
-              icon={User} 
-              label="아이디" 
-              value={formData.userId || ''} 
-              onChange={(val) => handleChange('userId', val)} 
-              placeholder="사용할 아이디 입력" 
-            />
-            
+            <h3 className="text-sm font-bold text-emerald-600 mb-2">잠금 설정</h3>
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">비밀번호</label>
               <div className="relative">
@@ -102,7 +96,7 @@ const Signup: React.FC<SignupProps> = ({ onComplete, onBack }) => {
                   required
                   value={formData.password || ''}
                   onChange={(e) => handleChange('password', e.target.value)}
-                  placeholder="비밀번호 입력"
+                  placeholder="앱 실행 시 사용할 비밀번호"
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-10 py-3 text-sm focus:ring-2 focus:ring-emerald-100 focus:border-emerald-400 outline-none transition-all font-semibold"
                 />
                 <button 
@@ -113,12 +107,15 @@ const Signup: React.FC<SignupProps> = ({ onComplete, onBack }) => {
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
+              <p className="text-[10px] text-slate-400 mt-1 ml-1">
+                * 이 비밀번호는 앱을 실행할 때마다 필요합니다.
+              </p>
             </div>
           </section>
 
           <hr className="border-slate-100" />
 
-          {/* 개인 정보 섹션 */}
+          {/* Personal Info Section */}
           <section className="space-y-4">
             <h3 className="text-sm font-bold text-emerald-600 mb-2">개인 정보</h3>
             <InputField 
@@ -194,7 +191,7 @@ const Signup: React.FC<SignupProps> = ({ onComplete, onBack }) => {
             type="submit"
             className="w-full mt-8 bg-slate-900 text-white py-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center gap-2"
           >
-            가입완료 <Check size={20} />
+            설정 완료 <Check size={20} />
           </button>
         </form>
       </div>
@@ -202,4 +199,4 @@ const Signup: React.FC<SignupProps> = ({ onComplete, onBack }) => {
   );
 };
 
-export default Signup;
+export default InitialSetup;

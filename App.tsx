@@ -5,9 +5,10 @@ import { getDailyData, saveDailyData, getAppData, saveProfile } from './services
 import Navigation from './components/Navigation';
 import Home from './components/Home';
 import DailyChecklist from './components/DailyChecklist';
-import Login from './components/Login';
-import Signup from './components/Signup';
-import { Calendar, ChevronLeft, ChevronRight, Loader2, ShieldAlert } from 'lucide-react';
+import LockScreen from './components/LockScreen';
+import InitialSetup from './components/InitialSetup';
+import InstallPWA from './components/InstallPWA';
+import { Calendar, ChevronLeft, ChevronRight, Loader2, ShieldAlert, Lock } from 'lucide-react';
 
 // 성능 최적화: 지연 로딩
 const JournalSection = lazy(() => import('./components/JournalSection'));
@@ -25,10 +26,12 @@ const SectionLoader = () => (
 
 const App: React.FC = () => {
   const [appData, setAppData] = useState<AppData>(getAppData());
-  const [currentView, setCurrentView] = useState<ViewType>('login'); // 초기 화면은 로그인
+  const [currentView, setCurrentView] = useState<ViewType>('home');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [dailyData, setDailyData] = useState<DailyData>(getDailyData(selectedDate));
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  // 잠금 상태 관리: 프로필이 있으면 기본적으로 잠김 상태
+  const [isLocked, setIsLocked] = useState<boolean>(!!appData.profile);
 
   // 1. 초기 로더 제거
   useEffect(() => {
@@ -48,21 +51,19 @@ const App: React.FC = () => {
     saveDailyData(newData);
   };
 
-  const handleSignupComplete = (profile: UserProfile) => {
+  const handleSetupComplete = (profile: UserProfile) => {
     saveProfile(profile);
     setAppData({ ...appData, profile });
-    setCurrentView('login');
-    alert('회원가입이 완료되었습니다. 로그인해주세요.');
+    setIsLocked(false); // 설정 완료 후 자동 잠금 해제
+    alert('설정이 완료되었습니다.');
   };
 
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true);
-    setCurrentView('home');
+  const handleUnlock = () => {
+    setIsLocked(false);
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setCurrentView('login');
+  const handleLock = () => {
+    setIsLocked(true);
   };
 
   const handleProfileUpdate = (updatedProfile: UserProfile) => {
@@ -91,25 +92,22 @@ const App: React.FC = () => {
 
   // --- View Routing ---
 
-  if (currentView === 'login') {
+  // 1. 프로필이 없으면 초기 설정 화면
+  if (!appData.profile) {
+    return <InitialSetup onComplete={handleSetupComplete} />;
+  }
+
+  // 2. 잠금 상태면 잠금 화면
+  if (isLocked) {
     return (
-      <Login 
-        onLoginSuccess={handleLoginSuccess} 
-        onSignupClick={() => setCurrentView('signup')} 
-        storedProfile={appData.profile}
+      <LockScreen 
+        onUnlock={handleUnlock} 
+        storedPassword={appData.profile.password} 
       />
     );
   }
 
-  if (currentView === 'signup') {
-    return (
-      <Signup 
-        onComplete={handleSignupComplete} 
-        onBack={() => setCurrentView('login')} 
-      />
-    );
-  }
-
+  // 3. 관리자 화면
   if (currentView === 'admin') {
     return (
       <Suspense fallback={<SectionLoader />}>
@@ -136,7 +134,10 @@ const App: React.FC = () => {
               <Calendar size={14} className="text-slate-500" />
               <span className="text-[11px] font-bold text-slate-700">{formattedDate}</span>
             </div>
-            <button onClick={toggleAdmin} className="p-2 text-slate-300 hover:text-slate-600 transition-colors">
+            <button onClick={handleLock} className="p-2 text-slate-300 hover:text-slate-600 transition-colors" title="잠금">
+              <Lock size={18} />
+            </button>
+            <button onClick={toggleAdmin} className="p-2 text-slate-300 hover:text-slate-600 transition-colors" title="관리자">
               <ShieldAlert size={18} />
             </button>
           </div>
@@ -162,13 +163,14 @@ const App: React.FC = () => {
             <UserProfileView 
               profile={appData.profile} 
               onUpdate={handleProfileUpdate}
-              onLogout={handleLogout}
+              onLogout={handleLock}
             />
           )}
         </Suspense>
       </main>
 
       <Navigation currentView={currentView} setView={setCurrentView} />
+      <InstallPWA />
     </div>
   );
 };
